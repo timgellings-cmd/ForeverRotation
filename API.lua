@@ -1481,6 +1481,9 @@ function ns.API.HealRangeUnit(opt)
 	if opt.unit and unitExists(opt.unit) then
 		return opt.unit
 	end
+	if opt.smart and ns.API.SmartHealUnit then
+		return ns.API.SmartHealUnit(opt)
+	end
 	for _, unit in ipairs({ "mouseover", "target", "focus", "targettarget" }) do
 		if unitFriendly(unit) then
 			return unit
@@ -1513,6 +1516,168 @@ function ns.API.LowestFriendly()
 		end
 	end
 	return best, bestHp
+end
+
+-- Discipline (opt.smart): one unit for hp AND aura checks. Friendly
+-- mouseover / target / focus first, else the lowest friendly. HealUnit keeps
+-- its old behaviour (player fallback) for the other roles.
+local function groupTank()
+	if not UnitGroupRolesAssigned then
+		return nil
+	end
+	for _, unit in ipairs({ "party1", "party2", "party3", "party4" }) do
+		if unitFriendly(unit) then
+			local ok, role = pcall(UnitGroupRolesAssigned, unit)
+			if ok and readable(role) and role == "TANK" then
+				return unit
+			end
+		end
+	end
+	return nil
+end
+
+-- Pre-pull shield (opt.tank): friendly focus, else the party member marked
+-- TANK, else the player. Unreadable role = not a tank.
+function ns.API.TankUnit()
+	if unitFriendly("focus") then
+		return "focus"
+	end
+	return groupTank() or "player"
+end
+
+function ns.API.SmartHealUnit(opt)
+	opt = opt or {}
+	if opt.unit and unitExists(opt.unit) then
+		return opt.unit
+	end
+	if opt.tank then
+		return ns.API.TankUnit()
+	end
+	for _, unit in ipairs({ "mouseover", "target", "focus" }) do
+		if unitFriendly(unit) then
+			return unit
+		end
+	end
+	local unit = ns.API.LowestFriendly()
+	return unit or "player"
+end
+
+local function unitInHealRange(unit)
+	if unit == "player" or not UnitInRange then
+		return true
+	end
+	local ok, inRange, checked = pcall(UnitInRange, unit)
+	if not ok or not readable(inRange) then
+		return true
+	end
+	if checked ~= nil and readable(checked) and not checked then
+		return true
+	end
+	return inRange and true or false
+end
+
+-- Party members (player included) at or below hp %. Unreadable health counts
+-- as 100 (Health) so an unknown value never triggers a group heal.
+function ns.API.GroupHurt(hp)
+	hp = tonumber(hp) or 70
+	local n = 0
+	for _, unit in ipairs({ "player", "party1", "party2", "party3", "party4" }) do
+		if (unit == "player" or unitFriendly(unit)) and unitInHealRange(unit) and ns.API.Health(unit) <= hp then
+			n = n + 1
+		end
+	end
+	return n
+end
+
+-- Group aggro on the player (Fade). Solo → false: Fade does nothing useful.
+-- Unreadable threat → falls back to targettarget; still unknown → false.
+function ns.API.HasAggro()
+	local okG, grouped = pcall(IsInGroup)
+	if not okG or not readable(grouped) or not grouped then
+		return false
+	end
+	if UnitThreatSituation then
+		local ok, status = pcall(UnitThreatSituation, "player")
+		if ok and readable(status) and type(status) == "number" then
+			return status >= 2
+		end
+	end
+	if ns.API.Hostile() then
+		local ok, onMe = pcall(UnitIsUnit, "targettarget", "player")
+		if ok and readable(onMe) and onMe then
+			return true
+		end
+	end
+	return false
+end
+
+-- Player mana in %, or nil when the client hides it (secret value).
+function ns.API.ManaPct()
+	local okCur, current = pcall(UnitPower, "player", 0)
+	local okMax, maxp = pcall(UnitPowerMax, "player", 0)
+	if not okCur or not okMax or not readable(current) or not readable(maxp) then
+		return nil
+	end
+	current, maxp = tonumber(current), tonumber(maxp)
+	if not current or not maxp or maxp <= 0 then
+		return nil
+	end
+	return (current / maxp) * 100
+end
+
+-- Wand auto-repeat state. A readable IsAutoRepeatSpell answer wins; when the
+-- client hides it, the START/STOP_AUTOREPEAT_SPELL flag (plain events, no
+-- combat log) decides.
+ns.API.autoRepeat = false
+
+function ns.API.NoteAutoRepeat(active)
+	ns.API.autoRepeat = active and true or false
+end
+
+local function wandShooting(spellID)
+	local id = ns.API.Resolve(spellID) or spellID
+	if C_Spell and C_Spell.IsAutoRepeatSpell then
+		local ok, on = pcall(C_Spell.IsAutoRepeatSpell, id)
+		if ok and readable(on) and on ~= nil then
+			return on and true or false
+		end
+	end
+	if IsAutoRepeatSpell then
+		local name = ns.API.SpellName(id)
+		for _, arg in ipairs({ name, id }) do
+			if arg then
+				local ok, on = pcall(IsAutoRepeatSpell, arg)
+				if ok and readable(on) and on ~= nil then
+					return on and true or false
+				end
+			end
+		end
+	end
+	return ns.API.autoRepeat == true
+end
+
+-- opt.wand: a wand must be equipped (a readable "no" blocks, unknown is
+-- allowed) and Shoot must not already be running — pressing Shoot again
+-- would stop the wand.
+function ns.API.WandReady(spellID)
+	if HasWandEquipped then
+		local ok, has = pcall(HasWandEquipped)
+		if ok and readable(has) and not has then
+			return false
+		end
+	end
+	return not wandShooting(spellID)
+end
+
+-- opt.wandMana: damage spells step aside for the wand below ns.db.wandMana %.
+-- Unknown mana → no block.
+function ns.API.WandManaBlock()
+	local floor = tonumber(ns.db and ns.db.wandMana) or 40
+	if floor <= 0 then
+		return false
+	end
+	local pct = ns.API.ManaPct()
+	return pct ~= nil and pct < floor
 end
 
 local function hasResources(id)
@@ -1644,8 +1809,27 @@ function ns.API.StepOk(spellID, opt, timeShift)
 			return false
 		end
 	end
+	-- Leveling stand-in (Lesser Heal until Heal is learned).
+	if opt.ifUnknown and ns.API.Known(opt.ifUnknown) then
+		return false
+	end
+	if opt.wandMana and ns.API.WandManaBlock() then
+		return false
+	end
+	if opt.wand and not ns.API.WandReady(spellID) then
+		return false
+	end
+	if opt.aggro and not ns.API.HasAggro() then
+		return false
+	end
+	if opt.groupHurt and ns.API.GroupHurt(opt.groupHp) < (tonumber(opt.groupHurt) or 3) then
+		return false
+	end
 	local helpful = ns.API.IsHelpful(spellID, opt)
 	local auraUnit = helpful and ns.API.HealUnit(opt) or "player"
+	if helpful and opt.smart then
+		auraUnit = ns.API.SmartHealUnit(opt)
+	end
 	-- Aura-first (ConROC-style): readable missing aura → allow; up with remain
 	-- above refresh → block. stacks=N keeps applying until count reaches N.
 	-- Hold is only a Forever fallback when auras lie.
@@ -1710,6 +1894,8 @@ function ns.API.StepOk(spellID, opt, timeShift)
 		local hp
 		if opt.unit then
 			hp = ns.API.Health(opt.unit)
+		elseif helpful and opt.smart then
+			hp = ns.API.Health(auraUnit)
 		elseif helpful or opt.heal then
 			hp = ns.API.HealHealth(opt)
 		else

@@ -18,7 +18,7 @@ ns.CLASS_ROLES = {
 	PALADIN = { "damage", "tank", "heal" },
 	HUNTER = { "range", "melee" },
 	ROGUE = { "damage" },
-	PRIEST = { "damage", "heal" },
+	PRIEST = { "damage", "heal", "disc" },
 	SHAMAN = { "caster", "melee", "heal" },
 	MAGE = { "damage" },
 	WARLOCK = { "damage" },
@@ -554,6 +554,8 @@ ns.Spell = {
 		PrayerofMending = 33076,
 		BindingHeal = 32546,
 		ShadowWordDeath = 32379,
+		-- Wand auto-repeat (General tab). Resolved by name like every other spell.
+		Shoot = 5019,
 	},
 	Shaman = {
 		LightningBolt = 403,
@@ -675,6 +677,19 @@ local function spellNames(map)
 end
 
 ns.SPELL_NAME_HINT = {
+	-- Wand "Shoot" (priest / mage / warlock). Name fallback if Forever remaps 5019.
+	[5019] = spellNames({
+		enUS = "Shoot",
+		frFR = "Tir",
+		deDE = "Schießen",
+		esES = "Disparar",
+		ruRU = "Выстрел",
+		zhCN = "射击",
+		zhTW = "射擊",
+		ptBR = "Atirar",
+		itIT = "Spara",
+		koKR = "사격",
+	}),
 	[34428] = spellNames({
 		enUS = "Victory Rush",
 		frFR = "Ivresse de la victoire",

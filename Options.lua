@@ -630,6 +630,33 @@ local function ensureOptions()
 	frame.weaponLabel = weaponCard.title
 	frame.weaponBoxes = {}
 
+	-- Priest only (no weapon buff → same slot): Discipline wand mana floor.
+	local discCard = makeCard(general, "OPT_CARD_DISC", 338, -188, 318, 196)
+	frame.discCard = discCard
+	local wandLabel = discCard:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+	wandLabel:SetPoint("TOPLEFT", 12, -32)
+	wandLabel:SetTextColor(0.92, 0.92, 0.92)
+	frame.wandLabel = wandLabel
+	local wandBar = makeBarSlider(discCard, 200, 0, 100, 5)
+	wandBar:SetPoint("TOPLEFT", 12, -52)
+	wandBar.OnValueChanged = function(_, value)
+		ns.db.wandMana = value
+		if frame.wandLabel then
+			frame.wandLabel:SetText(ns.T("OPT_WAND_MANA"):format(value))
+		end
+		if ns.InvalidateTick then
+			ns.InvalidateTick()
+		end
+	end
+	frame.wandBar = wandBar
+	local wandHint = discCard:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+	wandHint:SetPoint("TOPLEFT", 12, -78)
+	wandHint:SetPoint("RIGHT", -12, 0)
+	wandHint:SetJustifyH("LEFT")
+	wandHint:SetTextColor(0.65, 0.65, 0.65)
+	frame.wandHint = wandHint
+	discCard:Hide()
+
 	local hint = general:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 	hint:SetPoint("BOTTOMLEFT", 12, 8)
 	hint:SetPoint("BOTTOMRIGHT", -12, 8)
@@ -1148,7 +1175,7 @@ local function ensureOptions()
 				label:SetText(ns.T(label.key))
 			end
 		end
-		for _, card in ipairs({ hudCard, winCard, displayCard, weaponCard, combatCard, autoCard, alertCard, colorCard, shareCard, aboutCard, cmdCard, linksCard }) do
+		for _, card in ipairs({ hudCard, winCard, displayCard, weaponCard, discCard, combatCard, autoCard, alertCard, colorCard, shareCard, aboutCard, cmdCard, linksCard }) do
 			if card and card.title and card.titleKey then
 				card.title:SetText(ns.T(card.titleKey))
 			end
@@ -1458,6 +1485,14 @@ function ns.RefreshOptions()
 		for i = #choices + 1, #frame.weaponBoxes do
 			frame.weaponBoxes[i]:Hide()
 		end
+	end
+	if frame.discCard then
+		local priest = ns.ClassToken and ns.ClassToken() == "PRIEST"
+		frame.discCard:SetShown(priest and #choices == 0)
+		local pct = tonumber(ns.db.wandMana) or 40
+		frame.wandLabel:SetText(ns.T("OPT_WAND_MANA"):format(pct))
+		frame.wandBar:SetValue(pct)
+		frame.wandHint:SetText(ns.T("OPT_WAND_MANA_HINT"))
 	end
 	editSpec = editSpec or ns.ActiveSpec()
 	editMode = editMode or (ns.CombatMode and ns.CombatMode()) or "auto"

@@ -114,6 +114,17 @@ local function defaults()
 	if ns.db.roleAuto == nil then
 		ns.db.roleAuto = true
 	end
+	-- Discipline: below this mana %, damage spells give way to the wand.
+	if ns.db.wandMana == nil then
+		ns.db.wandMana = 40
+	end
+	ns.db.wandMana = tonumber(ns.db.wandMana) or 40
+	if ns.db.wandMana < 0 then
+		ns.db.wandMana = 0
+	end
+	if ns.db.wandMana > 100 then
+		ns.db.wandMana = 100
+	end
 	if ns.db.soundVolume == nil then
 		ns.db.soundVolume = 60
 	end
@@ -681,6 +692,9 @@ pcall(frame.RegisterEvent, frame, "PLAYER_UPDATE_RESTING")
 pcall(frame.RegisterEvent, frame, "PLAYER_MOUNT_DISPLAY_CHANGED")
 pcall(frame.RegisterEvent, frame, "ZONE_CHANGED_NEW_AREA")
 pcall(frame.RegisterEvent, frame, "UNIT_COMBO_POINTS")
+-- Wand auto-repeat (Discipline "Shoot"): plain events, no combat log.
+pcall(frame.RegisterEvent, frame, "START_AUTOREPEAT_SPELL")
+pcall(frame.RegisterEvent, frame, "STOP_AUTOREPEAT_SPELL")
 
 local ticker
 local booted
@@ -840,8 +854,18 @@ frame:SetScript("OnEvent", function(_, event, unit, _, spellID)
 		scheduleBarFlush()
 		return
 	end
+	if event == "START_AUTOREPEAT_SPELL" or event == "STOP_AUTOREPEAT_SPELL" then
+		if ns.API and ns.API.NoteAutoRepeat then
+			ns.API.NoteAutoRepeat(event == "START_AUTOREPEAT_SPELL")
+		end
+		requestTick()
+		return
+	end
 	if event == "PLAYER_LOGIN" or event == "PLAYER_ENTERING_WORLD" then
 		defaults()
+		if ns.API and ns.API.NoteAutoRepeat then
+			ns.API.NoteAutoRepeat(false)
+		end
 		if not booted then
 			booted = true
 			if ns.API and ns.API.InvalidateSpells then

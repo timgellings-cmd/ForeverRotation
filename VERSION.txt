@@ -1,16 +1,30 @@
-1.5.72
+1.5.73
 
-# 1.5.72
+# 1.5.73
 
-## Open source — development by Vohnka has stopped
+## Discipline Priest role (fork)
 
-Active development of Forever Rotation by the original author has ended. The GitHub repository is now **public** under the **MIT** license so anyone can fork it, fix bugs, and keep improving the addon for Forever.
+New Priest playstyle **Discipline** (`disc`) next to Damage and Heal. Pick it with the HUD role button or `/wfr role`. Damage, Heal and every other class are unchanged.
 
-### What changed for players
-- Info → Links now includes **GitHub** next to Website, Discord, and CurseForge.
-- About / support text states that maintenance by Vohnka has stopped and that forks are welcome.
-- CurseForge description and project source point to https://github.com/ssablon/ForeverRotation.
+### Rotation (heals first, damage when nobody needs healing)
+- **Power Word: Shield** before the pull (out of combat, hostile target selected) on your focus, else the party member marked Tank, else yourself.
+- **Power Word: Shield** in combat below 80% health. Never suggested while **Weakened Soul** is readable on that unit.
+- **Flash Heal** only as an emergency (below 35%).
+- **Prayer of Healing** when 3+ party members (you included) are at or below 70%.
+- **Penance** (if talented) below 75%, **Heal** below 70% (**Lesser Heal** until Heal is learned), **Renew** below 90% when missing. Greater Heal is in the list but off by default.
+- Damage: **Holy Fire → Smite → Mind Blast → Shadow Word: Pain → Wand (Shoot)**. Smite is the filler and gives way to Mind Blast / Shadow Word: Pain when they are ready.
+- Heal target: friendly mouseover / target / focus, else the lowest party member. Health and auras (Shield, Weakened Soul, Renew) are read on that same unit.
+- Pure priority list: a heal comes back as long as its health gate is met.
 
-### What did not change
-- Rotation logic, holds, profiles, and HUD behaviour from **1.5.71** are unchanged in this build aside from the Info texts and links.
-- The addon still never casts for you and still never reads the combat log.
+### Mana management
+- New option (General tab, Discipline card): **Wand below mana %** (default 40%). Below it only the wand is suggested for damage. 0 = off.
+- Targets under 20% (trash) / 5% (raid boss) are finished with the wand.
+- Shoot is only suggested with a wand equipped and never while it is already shooting (pressing Shoot again would stop the wand).
+
+### Defense / buffs (Discipline)
+- Power Word: Shield on yourself below 50%, Fade when you have group aggro or below 40%.
+- Inner Fire, Power Word: Fortitude, Divine Spirit (if talented), Shadow Protection.
+
+### Notes
+- Spells you have not learned yet (level, talent) are skipped silently.
+- Still no combat log, still never casts for you.
