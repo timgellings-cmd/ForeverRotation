@@ -17,9 +17,14 @@ It shows:
 - The current HUD queue and defense suggestion.
 
 ### Offline tests
-- `tests/` (not loaded by the game): a small WoW client mock and 45 checks for the Discipline list, the diagnostics and a regression baseline proving Priest Damage / Heal suggestions are unchanged since 1.5.72.
+- `tests/` (not loaded by the game): a small WoW client mock and 54 checks for the Discipline list, the diagnostics and a regression baseline proving Priest Damage / Heal suggestions are unchanged since 1.5.72.
 - Run from the addon folder with Lua 5.1: `lua5.1 tests/run.lua`.
 
+### Discipline damage now follows the Icy Veins guide
+- **Holy Fire** only as the opener (target at 90% health or more), no longer re-cast every time the DoT drops.
+- **Smite** and **Mind Blast** once per target, in the guide's order (Smite, then Mind Blast, then Shadow Word: Pain), then the **wand until the mob dies**. Both come back after 30 s on the same target for long fights; the 30 s are editable per row in the options (0 = no wait). A new target starts over.
+- Heals, buffs, pre-pull Shield and the wand mana floor are unchanged.
+
 ### Unchanged
-- Rotation logic, lists and thresholds are the same as 1.5.73.
+- Priest Damage / Heal and every other class.
 - Still no combat log, still never casts for you.

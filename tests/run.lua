@@ -94,7 +94,30 @@ same("target 15%: wand finisher", T.queue(), "Shoot")
 hostileFight()
 T.aura("target", "HolyFire", "HARMFUL", 8)
 T.aura("target", "ShadowWordPain", "HARMFUL", 15)
-same("HF + SWP up: Mind Blast, Smite, Shoot", T.queue(), "MindBlast, Smite, Shoot")
+same("HF + SWP up: guide order Smite, Mind Blast, Shoot", T.queue(), "Smite, MindBlast, Shoot")
+
+-- Guide damage sequence: Holy Fire opener, one Smite, one Mind Blast,
+-- Shadow Word: Pain, then wand until the mob dies.
+hostileFight(); W.units.target.guid = "mob-1"
+same("guide 1: Holy Fire opener", T.queue(), "HolyFire, Smite, MindBlast")
+T.aura("target", "HolyFire", "HARMFUL", 8); ns.API.NoteSpellCast(Pr.HolyFire)
+first("guide 2: Smite", T.queue(), "Smite")
+W.units.target.hp = 85
+ns.API.NoteSpellCast(Pr.Smite)
+first("guide 3: Mind Blast", T.queue(), "MindBlast")
+ns.API.NoteSpellCast(Pr.MindBlast)
+first("guide 4: Shadow Word: Pain", T.queue(), "ShadowWordPain")
+T.aura("target", "ShadowWordPain", "HARMFUL", 18); ns.API.NoteSpellCast(Pr.ShadowWordPain)
+same("guide 5: wand until dead", T.queue(), "Shoot")
+lacks("guide: no Holy Fire below 90%", T.queue(), "HolyFire")
+T.clock.now = T.clock.now + 31
+first("guide: Smite back after its 30 s hold", T.queue(), "Smite")
+T.clock.now = T.clock.now - 31
+W.units.target = { hp = 100, hostile = true, guid = "mob-2" }; W.auras.target = nil
+same("guide: new target starts over", T.queue(), "HolyFire, Smite, MindBlast")
+W.units.target.hp = 80
+local okG, guideText = pcall(ns.DiscReport)
+report(okG and guideText:find("target hp 80% < 90% (opener only)", 1, true) ~= nil, "diag: Holy Fire opener reason", tostring(guideText))
 
 hostileFight(); W.units.player.hp = 60; W.secretHealth = true
 lacks("secret health: no heal guess", T.queue(), "Heal")

@@ -199,6 +199,13 @@ local function explain(step, rotation)
 			return why(string.format("%s hp %.0f%% > %d%%", unit, hp, needHp))
 		end
 	end
+	if opt.hpMin then
+		local hpUnit = opt.unit or "player"
+		local hp = API.Health(hpUnit)
+		if hp < opt.hpMin then
+			return why(string.format("%s hp %.0f%% < %d%% (opener only)", hpUnit, hp, opt.hpMin))
+		end
+	end
 	if opt.combat and not API.InCombat() then
 		return why("not in combat")
 	end

@@ -27,7 +27,7 @@ local function install(W, clock)
 	function UnitAffectingCombat() return W.inCombat end
 	function UnitCastingInfo() return nil end
 	function UnitChannelInfo() return nil end
-	function UnitGUID(u) return U(u) and ("guid-" .. u) or nil end
+	function UnitGUID(u) return U(u) and (U(u).guid or ("guid-" .. u)) or nil end
 	function UnitIsUnit(a, b) return a == b end
 	function IsInGroup() return W.group end
 	function UnitThreatSituation() return W.threat end
