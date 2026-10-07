@@ -70,7 +70,7 @@ Namespace : `local addonName, ns = ...`. Ne pas créer un second état global ho
 | Paladin | `damage`, `tank`, `heal` |
 | Chasseur | `range`, `melee` |
 | Voleur, mage, démoniste | `damage` |
-| Prêtre | `damage`, `heal` |
+| Prêtre | `damage`, `heal`, `disc` |
 | Chaman | `caster`, `melee`, `heal` |
 | Druide | `hybrid`, `heal`, `tank` |
 
@@ -81,6 +81,8 @@ Namespace : `local addonName, ns = ...`. Ne pas créer un second état global ho
 - Druide `heal` → `heal`. Druide `tank` → `bear` si forme d'ours, sinon `tank`.
 - Sinon forme de félin → `cat`, forme d'ours → `bear`, sinon `damage`.
 - Les autres classes : le rôle HUD tel quel.
+
+Prêtre `disc` (Discipline, fork) : liste propre `APLDefaults.PRIEST.disc` et `DefDefaults.PRIEST.disc`. `APLModes.PRIEST.disc = {}` : AoE / burst retombent sur la liste mono disc (pas sur les listes shadow).
 
 `ns.APLDefaults.DRUID.hybrid` alias `damage`. Les défenses chasseur `range`/`melee` et chaman `caster`/`melee` alias `damage`. L'éditeur utilise `ns.SpecList` (pour le druide : `damage`, `cat`, `bear`, `heal`, `tank`).
 
@@ -153,6 +155,14 @@ Les listes viennent d'un noyau Era type ConROC Classic, niveaux 1–60. Pas de S
 | `hpMin` | Refus si la vie (joueur, ou `unit`) est sous ce pourcentage. |
 | `hold` | Secondes après un cast réussi pendant lesquelles le sort n'est plus proposé (DoT, HoT, snare). Défauts Forever/Classic. Éditable à côté de chaque sort. `0` = pas de délai d'aura. Holds nuisibles liés au GUID. Pour `nodebuff` / `nobuff`, l'aura lisible prime ; hold = secours Forever. Pas de CLEU. |
 | `anydebuff` | Liste d'IDs. Si la cible a **l'un** d'eux, le pas est refusé. Une seule piqûre, une seule malédiction. |
+| `smart` | Discipline. Soin : vie **et** auras (`nobuff`, `nodebuff`) lues sur la même unité `ns.API.SmartHealUnit` (mouseover / cible / focus amical, sinon `LowestFriendly`). Aussi pour la portée (`HealRangeUnit`). |
+| `tank` | Avec `smart` : unité = `ns.API.TankUnit()` (focus amical, sinon membre `UnitGroupRolesAssigned == "TANK"`, sinon le joueur). Bouclier avant le pull. |
+| `groupHurt` / `groupHp` | Refus si moins de N membres du groupe (joueur compris, `UnitInRange` si lisible) sont à `groupHp` % ou moins (Prière de soins). Vie illisible = 100. |
+| `aggro` | Exige `ns.API.HasAggro()` : en groupe, `UnitThreatSituation("player") >= 2`, sinon `targettarget == player`. Seul ou illisible = refus (Oubli). |
+| `wand` | Baguette (Tir 5019) : refus si `HasWandEquipped` répond non (lisible) ou si le tir auto tourne déjà (`START/STOP_AUTOREPEAT_SPELL`, `IsAutoRepeatSpell`). Re-presser Tir arrêterait la baguette. |
+| `wandMana` | Refus si le mana joueur (lisible) est sous `ns.db.wandMana` % (défaut 40, 0 = off). Mana illisible = pas de refus. |
+| `ifUnknown` | ID : refus si ce sort est connu (Soin inférieur tant que Soin n'est pas appris). |
+| `nospend` | Pas de marquage « utilisé » dans le tour (`isRotSpent`) : liste de priorité pure. Un soin revient tant que son seuil de vie est atteint. |
 
 `ns.API.Ready` : sort résolu, pas de cooldown propre en cours, pas de `noMana`. Le GCD (environ 1,5 s) ne retire pas le sort de la file : il reste le prochain bouton à presser. Un cooldown plus long (Jugement, Horion, Visée, Déflagration…) le retire jusqu'à la fin, et le pas suivant de la liste est testé. Ça vaut pour toutes les classes, les raciaux et la défense.
 
@@ -373,6 +383,8 @@ pos.interrupt / pos.purge / pos.cleanse / pos.weapon / pos.lock
   = { point, relativePoint, x, y }  -- 2e valeur = nom de l'ancre, aujourd'hui UIParent via GetPoint
 minimapAngle
 ```
+
+`wandMana` (0 .. 100, défaut 40) : seuil Discipline, carte « Discipline » de l'onglet Général (prêtre seulement, à la place de la carte d'enchant vide).
 
 `WoWForeverSharedDB` : `{ loginMessage = true|false }`.
 

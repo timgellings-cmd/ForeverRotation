@@ -92,6 +92,15 @@ Switch from the options window or the class-colored HUD button. **Reset** only w
 
 Per class: damage, tank, heal, and the extra Classic styles (hunter range/melee, shaman caster/melee, druid hybrid / cat / bear). The HUD role button cycles the styles that exist for your class.
 
+### Discipline Priest
+
+Priests have a third style, **Discipline**, modeled on the Icy Veins WoW Forever Discipline guide:
+
+- Heals come first, but only when someone needs them: Power Word: Shield (never on Weakened Soul, also before the pull on your focus / tank / yourself), Flash Heal only as an emergency, Prayer of Healing when 3+ party members are hurt, then Penance, Heal (Lesser Heal while leveling) and Renew.
+- Nothing to heal → Holy Fire → Smite → Mind Blast → Shadow Word: Pain → Wand (Shoot).
+- **Wand below mana %** (General tab, default 40%): below it only the wand is suggested for damage. Low-health targets are finished with the wand.
+- Shoot must be on an action bar (like every suggestion with "bar only" on) and is never suggested while the wand is already shooting.
+
 ### Extra options
 
 - Hide the HUD when dead, mounted, eating, or in town

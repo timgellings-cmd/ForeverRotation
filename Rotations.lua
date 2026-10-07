@@ -50,6 +50,11 @@ local function isRotSpent(step)
 	if not step then
 		return false
 	end
+	-- Pure priority rows (Discipline): never skipped for "already cast this
+	-- pass". A heal must come back as long as its hp gate is still met.
+	if step.opt and step.opt.nospend then
+		return false
+	end
 	if step.key and rotSpent[step.key] then
 		return true
 	end

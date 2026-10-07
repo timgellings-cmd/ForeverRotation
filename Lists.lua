@@ -243,6 +243,28 @@ ns.APLDefaults = {
 			step("LesserHeal", Pr.LesserHeal, { hp = 85,  heal = true }),
 			step("Smite", Pr.Smite, { filler = true, hostile = true }),
 		},
+		-- Discipline (Icy Veins Forever disc guide). Pure priority list
+		-- (nospend): heals first, gated by hp, then damage, then wand.
+		-- smart = hp and auras read on the same unit (friendly mouseover /
+		-- target / focus, else lowest party member). Unknown spells (level,
+		-- talent) are skipped by Resolve.
+		disc = {
+			step("PowerWordShieldPull", Pr.PowerWordShield, { hp = 100, tank = true, smart = true, nocombat = true, hostile = true, nobuff = true, nodebuff = Pr.WeakenedSoul, refresh = 0, heal = true, nospend = true }),
+			step("PowerWordShield", Pr.PowerWordShield, { hp = 80, combat = true, smart = true, nobuff = true, nodebuff = Pr.WeakenedSoul, refresh = 0, heal = true, nospend = true }),
+			step("FlashHeal", Pr.FlashHeal, { hp = 35, smart = true, heal = true, nospend = true }),
+			step("PrayerofHealing", Pr.PrayerofHealing, { groupHurt = 3, groupHp = 70, hp = 100, smart = true, heal = true, nospend = true }),
+			step("Penance", Pr.Penance, { hp = 75, smart = true, heal = true, nospend = true }),
+			step("Heal", Pr.Heal, { hp = 70, smart = true, heal = true, nospend = true }),
+			step("LesserHeal", Pr.LesserHeal, { hp = 70, ifUnknown = Pr.Heal, smart = true, heal = true, nospend = true }),
+			step("GreaterHeal", Pr.GreaterHeal, { hp = 50, smart = true, heal = true, nospend = true }, false),
+			step("Renew", Pr.Renew, { hp = 90, smart = true, nobuff = true, heal = true, nospend = true }),
+			step("HolyFire", Pr.HolyFire, { nodebuff = true, skipLow = true, wandMana = true, hostile = true, nospend = true }),
+			step("Smite", Pr.Smite, { filler = true, skipLow = true, wandMana = true, hostile = true, nospend = true }),
+			step("MindBlast", Pr.MindBlast, { skipLow = true, wandMana = true, hostile = true, nospend = true }),
+			step("ShadowWordPain", Pr.ShadowWordPain, { nodebuff = true, skipLow = true, wandMana = true, hostile = true, nospend = true }),
+			step("PenanceDamage", Pr.Penance, { skipLow = true, wandMana = true, hostile = true, nospend = true }, false),
+			step("Shoot", Pr.Shoot, { wand = true, filler = true, hostile = true, nospend = true }),
+		},
 	},
 	SHAMAN = {
 		caster = {
@@ -866,6 +888,17 @@ ns.DefDefaults = {
 			step("PowerWordShield", Pr.PowerWordShield, { combat = true, hp = 70, nobuff = true, nodebuff = Pr.WeakenedSoul }),
 			step("Fade", Pr.Fade, { combat = true, hp = 50 }),
 		},
+		-- Discipline: emergencies first (own shield, Fade), then long buffs.
+		-- unit = "player" keeps hp / Shield / Weakened Soul on the priest.
+		disc = {
+			step("PowerWordShield", Pr.PowerWordShield, { combat = true, hp = 50, unit = "player", nobuff = true, nodebuff = Pr.WeakenedSoul, refresh = 0 }),
+			step("Fade", Pr.Fade, { combat = true, aggro = true }),
+			step("FadeLowHp", Pr.Fade, { combat = true, hp = 40, unit = "player" }),
+			step("InnerFire", Pr.InnerFire, { nobuff = true }),
+			step("PowerWordFortitude", Pr.PowerWordFortitude, { nobuff = true }),
+			step("DivineSpirit", Pr.DivineSpirit, { nobuff = true }),
+			step("ShadowProtection", Pr.ShadowProtection, { nobuff = true }),
+		},
 	},
 	SHAMAN = {
 		damage = {
@@ -923,6 +956,9 @@ ns.DefDefaults.HUNTER.range = ns.DefDefaults.HUNTER.damage
 ns.DefDefaults.HUNTER.melee = ns.DefDefaults.HUNTER.damage
 ns.DefDefaults.SHAMAN.caster = ns.DefDefaults.SHAMAN.damage
 ns.DefDefaults.SHAMAN.melee = ns.DefDefaults.SHAMAN.damage
+-- Discipline has no AoE / burst variant: an empty bucket makes those modes
+-- fall back to the disc mono list instead of the shadow (damage) lists.
+ns.APLModes.PRIEST.disc = {}
 
 local function stripMaintFromApl(node)
 	if type(node) ~= "table" then
