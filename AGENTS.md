@@ -2,7 +2,7 @@
 
 Addon d'aide à la rotation pour **WoW Forever** (combat Classic Era, client camelot, interface `16001`). Il affiche les prochains sorts et surligne les boutons. Il ne lance aucun sort.
 
-Version actuelle : **1.5.73** (fork : rôle prêtre Discipline `disc`). Auteur : Vohnka — https://wow-forever.fr  
+Version actuelle : **1.5.74** (fork : rôle prêtre Discipline `disc`). Auteur : Vohnka — https://wow-forever.fr  
 Dépôt : https://github.com/ssablon/ForeverRotation (**public**, branche `main`, licence MIT). Le dossier local et le dossier AddOns restent `WoWForeverRot` (sauvegardes et install). Développement actif arrêté ; forks bienvenus.
 
 La carte complète du code est dans [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). Ce fichier dit seulement par où commencer.
@@ -21,7 +21,7 @@ Après chaque changement demandé : bumper `VERSION.txt` + les deux TOC, recopie
 
 Les deux TOC chargent les mêmes fichiers, dans cet ordre :
 
-`Credits.lua` → `Locale.lua` → `API.lua` → `Data.lua` → `Physics.lua` → `Lists.lua` → `APL.lua` → `Share.lua` → `UI.lua` → `Options.lua` → `Glow.lua` → `Rotations.lua` → `Core.lua`
+`Credits.lua` → `Locale.lua` → `API.lua` → `Data.lua` → `Physics.lua` → `Lists.lua` → `APL.lua` → `Share.lua` → `UI.lua` → `Options.lua` → `Glow.lua` → `Rotations.lua` → `Diag.lua` → `Core.lua`
 
 Tout l'état partagé vit dans la table `ns` (deuxième valeur de `...`). `Core.lua` démarre un `C_Timer.NewTicker(0.2)` comme ConROC (`interval = 0.20`). Pas d'`OnUpdate` sur tout le HUD : seulement la jauge physique (50 ms) si `showPhysics` est actif.
 
@@ -41,6 +41,8 @@ Tout l'état partagé vit dans la table `ns` (deuxième valeur de `...`). `Core.
 | Tête de mort sur les barres | `Glow.lua` |
 | Profils, slash, migrations | `Core.lua` |
 | Texte joueur | `Locale.lua` (`ns.T`) |
+| Diagnostic Discipline (`/wfr disc`) | `Diag.lua` |
+| Tests hors jeu (Lua 5.1) | `tests/run.lua` (`lua5.1 tests/run.lua` depuis la racine) |
 
 ## Pièges qui cassent Forever
 

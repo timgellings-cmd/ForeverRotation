@@ -1041,6 +1041,10 @@ SlashCmdList.WFR = function(msg)
 		ns.SetProfile("custom")
 	elseif msg == "menu" or msg == "options" or msg == "opt" then
 		ns.ToggleOptions()
+	elseif msg == "disc" or msg == "diag" then
+		if ns.ShowDiscReport then
+			ns.ShowDiscReport()
+		end
 	else
 		ns.Print(ns.T("HELP"))
 	end

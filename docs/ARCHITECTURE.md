@@ -54,6 +54,7 @@ Chaque builder respecte son interrupteur `ns.db.show*`. `show*` absent vaut affi
 | `Options.lua` | Fenêtre d'options, éditeurs, minimap. `ns.ToggleSpellMenu = ns.ToggleOptions`. |
 | `Glow.lua` | Overlays de barres et filtre de portée. |
 | `Rotations.lua` | Builders de files. |
+| `Diag.lua` | `/wfr disc` : rapport lecture seule (valeurs secrètes, Resolve, baguette, unité de soin, raison de refus de chaque pas disc). Fenêtre copiable `WoWForeverRotDiag`. |
 | `Core.lua` | Profils, rôles, modes, événements, slash `/wfr` et `/foreverrot`. |
 
 Namespace : `local addonName, ns = ...`. Ne pas créer un second état global hors des SavedVariables déjà déclarés.
@@ -359,6 +360,7 @@ Soins — unité : `opt.unit` s'il existe, sinon `mouseover`, `target`, `focus`,
 | `jcj` ou `pvp` | profil `pvp` |
 | `custom` ou `customs` | profil `custom` |
 | `menu` / `options` / `opt` | `ns.ToggleOptions` |
+| `disc` / `diag` | `ns.ShowDiscReport` (prêtre) |
 
 `/wftoc on|off` (aussi `/wfmsg`) : `WoWForeverSharedDB.loginMessage`. C'est partagé avec les autres addons WoW Forever. Ne pas dupliquer ce bloc.
 
@@ -412,3 +414,12 @@ Vérifier en jeu : `/reload`, sort coché, sort décoché, sort retiré (il ne d
 - Oublier le second TOC ou n'incrémenter qu'une version.
 - Dissiper le raid : `BuildCleanse` ne regarde que `player`.
 - Supposer que `hybrid`, `range` ou `caster` sont les clés stockées pour toutes les listes. Voir `ActiveSpec` et les alias en bas de `Lists.lua`.
+
+## Tests hors jeu
+
+`tests/run.lua` (Lua 5.1, comme le jeu) charge `Locale`, `API`, `Data`, `Lists`, `APL`, `Rotations`, `Diag` avec un client simulé (`tests/wowmock.lua` : unités, vie, mana, auras, grimoire, baguette, valeurs secrètes). Pas d'UI.
+
+- Scénarios Discipline (soins, Weakened Soul, baguette, niveau bas, défense, diagnostic).
+- Régression : files `damage` / `heal` du prêtre comparées à `tests/golden/priest_damage_heal.txt` (sortie de 1.5.72). `--update-golden` seulement si le changement est voulu.
+
+Lancer depuis la racine : `lua5.1 tests/run.lua`. Ne remplace pas un test en jeu.

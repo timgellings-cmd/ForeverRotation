@@ -1,30 +1,25 @@
-1.5.73
+1.5.74
 
-# 1.5.73
+# 1.5.74
 
-## Discipline Priest role (fork)
+## Discipline diagnostics and offline tests (fork)
 
-New Priest playstyle **Discipline** (`disc`) next to Damage and Heal. Pick it with the HUD role button or `/wfr role`. Damage, Heal and every other class are unchanged.
+### New: `/wfr disc` (also `/wfr diag`)
+A read-only diagnostics window for Priests, made for the first login on the live WoW Forever client. Copy it with Ctrl+A, Ctrl+C. It never casts and never changes settings.
 
-### Rotation (heals first, damage when nobody needs healing)
-- **Power Word: Shield** before the pull (out of combat, hostile target selected) on your focus, else the party member marked Tank, else yourself.
-- **Power Word: Shield** in combat below 80% health. Never suggested while **Weakened Soul** is readable on that unit.
-- **Flash Heal** only as an emergency (below 35%).
-- **Prayer of Healing** when 3+ party members (you included) are at or below 70%.
-- **Penance** (if talented) below 75%, **Heal** below 70% (**Lesser Heal** until Heal is learned), **Renew** below 90% when missing. Greater Heal is in the list but off by default.
-- Damage: **Holy Fire → Smite → Mind Blast → Shadow Word: Pain → Wand (Shoot)**. Smite is the filler and gives way to Mind Blast / Shadow Word: Pain when they are ready.
-- Heal target: friendly mouseover / target / focus, else the lowest party member. Health and auras (Shield, Weakened Soul, Renew) are read on that same unit.
-- Pure priority list: a heal comes back as long as its health gate is met.
+It shows:
+- Client version / interface number next to the addon TOC interface (spot a launch-day interface change at once).
+- Mana and health as the client reports them, including values the client hides (secret values).
+- Which unit the Discipline heals would target, the lowest party member, the tank unit, group aggro.
+- Weakened Soul / Shield / Renew on the heal unit, Holy Fire / Shadow Word: Pain on the target, marked UNREADABLE when the client hides them.
+- Wand (Shoot 5019): known, resolved name, on an action bar, wand equipped, auto-repeat state.
+- Every step of the Discipline rotation and defense list: suggestable or not, and the reason (not learned, health above threshold, Weakened Soul, mana below wand floor, not on a bar, cooldown...).
+- The current HUD queue and defense suggestion.
 
-### Mana management
-- New option (General tab, Discipline card): **Wand below mana %** (default 40%). Below it only the wand is suggested for damage. 0 = off.
-- Targets under 20% (trash) / 5% (raid boss) are finished with the wand.
-- Shoot is only suggested with a wand equipped and never while it is already shooting (pressing Shoot again would stop the wand).
+### Offline tests
+- `tests/` (not loaded by the game): a small WoW client mock and 45 checks for the Discipline list, the diagnostics and a regression baseline proving Priest Damage / Heal suggestions are unchanged since 1.5.72.
+- Run from the addon folder with Lua 5.1: `lua5.1 tests/run.lua`.
 
-### Defense / buffs (Discipline)
-- Power Word: Shield on yourself below 50%, Fade when you have group aggro or below 40%.
-- Inner Fire, Power Word: Fortitude, Divine Spirit (if talented), Shadow Protection.
-
-### Notes
-- Spells you have not learned yet (level, talent) are skipped silently.
+### Unchanged
+- Rotation logic, lists and thresholds are the same as 1.5.73.
 - Still no combat log, still never casts for you.

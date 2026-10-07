@@ -125,6 +125,7 @@ Priests have a third style, **Discipline**, modeled on the Icy Veins WoW Forever
 | `profile` | Cycle profile |
 | `base` / `jce` / `jcj` / `custom` | Jump to that profile |
 | `menu` / `options` | Open the configuration window |
+| `disc` | Priest: Discipline diagnostics window (copyable text, read-only) |
 
 Open options with `/wfr options` or a left-click on the minimap button. Right-click the minimap button to lock or unlock the windows.
 
@@ -147,8 +148,10 @@ UI.lua                         # HUD
 Options.lua                    # configuration
 Glow.lua                       # action-bar skull flash
 Rotations.lua                  # queue builders
+Diag.lua                       # /wfr disc diagnostics
 Core.lua                       # profiles, events, slash
 images/                        # skull, roles, lock, minimap
+tests/                         # offline tests (lua5.1 tests/run.lua), not loaded in game
 ```
 
 Saved variables: `WoWForeverRotDB`, `WoWForeverSharedDB` (credit line shared with other WoW Forever add-ons).
