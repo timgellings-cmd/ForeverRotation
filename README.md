@@ -97,7 +97,7 @@ Per class: damage, tank, heal, and the extra Classic styles (hunter range/melee,
 Priests have a third style, **Discipline**, modeled on the Icy Veins WoW Forever Discipline guide:
 
 - Heals come first, but only when someone needs them: Power Word: Shield (never on Weakened Soul, also before the pull on your focus / tank / yourself), Flash Heal only as an emergency, Prayer of Healing when 3+ party members are hurt, then Penance, Heal (Lesser Heal while leveling) and Renew.
-- Nothing to heal → Holy Fire → Smite → Mind Blast → Shadow Word: Pain → Wand (Shoot).
+- Nothing to heal → the guide's solo order: Holy Fire as the opener (target at 90%+), one Smite, one Mind Blast, Shadow Word: Pain, then the wand until the mob dies. Smite and Mind Blast come back after 30 s on the same target (editable per row in the options; 0 = no wait).
 - **Wand below mana %** (General tab, default 40%): below it only the wand is suggested for damage. Low-health targets are finished with the wand.
 - Shoot must be on an action bar (like every suggestion with "bar only" on) and is never suggested while the wand is already shooting.
 
@@ -125,6 +125,7 @@ Priests have a third style, **Discipline**, modeled on the Icy Veins WoW Forever
 | `profile` | Cycle profile |
 | `base` / `jce` / `jcj` / `custom` | Jump to that profile |
 | `menu` / `options` | Open the configuration window |
+| `disc` | Priest: Discipline diagnostics window (copyable text, read-only) |
 
 Open options with `/wfr options` or a left-click on the minimap button. Right-click the minimap button to lock or unlock the windows.
 
@@ -147,8 +148,10 @@ UI.lua                         # HUD
 Options.lua                    # configuration
 Glow.lua                       # action-bar skull flash
 Rotations.lua                  # queue builders
+Diag.lua                       # /wfr disc diagnostics
 Core.lua                       # profiles, events, slash
 images/                        # skull, roles, lock, minimap
+tests/                         # offline tests (lua5.1 tests/run.lua), not loaded in game
 ```
 
 Saved variables: `WoWForeverRotDB`, `WoWForeverSharedDB` (credit line shared with other WoW Forever add-ons).

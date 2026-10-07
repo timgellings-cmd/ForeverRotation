@@ -245,6 +245,9 @@ ns.APLDefaults = {
 		},
 		-- Discipline (Icy Veins Forever disc guide). Pure priority list
 		-- (nospend): heals first, gated by hp, then damage, then wand.
+		-- Damage follows the guide: Holy Fire opener (target >= 90%), one
+		-- Smite, one Mind Blast (hold = 30 s, bound to the target GUID),
+		-- Shadow Word: Pain, then wand until the mob dies.
 		-- smart = hp and auras read on the same unit (friendly mouseover /
 		-- target / focus, else lowest party member). Unknown spells (level,
 		-- talent) are skipped by Resolve.
@@ -258,9 +261,9 @@ ns.APLDefaults = {
 			step("LesserHeal", Pr.LesserHeal, { hp = 70, ifUnknown = Pr.Heal, smart = true, heal = true, nospend = true }),
 			step("GreaterHeal", Pr.GreaterHeal, { hp = 50, smart = true, heal = true, nospend = true }, false),
 			step("Renew", Pr.Renew, { hp = 90, smart = true, nobuff = true, heal = true, nospend = true }),
-			step("HolyFire", Pr.HolyFire, { nodebuff = true, skipLow = true, wandMana = true, hostile = true, nospend = true }),
-			step("Smite", Pr.Smite, { filler = true, skipLow = true, wandMana = true, hostile = true, nospend = true }),
-			step("MindBlast", Pr.MindBlast, { skipLow = true, wandMana = true, hostile = true, nospend = true }),
+			step("HolyFire", Pr.HolyFire, { hpMin = 90, unit = "target", nodebuff = true, wandMana = true, hostile = true, nospend = true }),
+			step("Smite", Pr.Smite, { hold = 30, skipLow = true, wandMana = true, hostile = true, nospend = true }),
+			step("MindBlast", Pr.MindBlast, { hold = 30, skipLow = true, wandMana = true, hostile = true, nospend = true }),
 			step("ShadowWordPain", Pr.ShadowWordPain, { nodebuff = true, skipLow = true, wandMana = true, hostile = true, nospend = true }),
 			step("PenanceDamage", Pr.Penance, { skipLow = true, wandMana = true, hostile = true, nospend = true }, false),
 			step("Shoot", Pr.Shoot, { wand = true, filler = true, hostile = true, nospend = true }),
